@@ -1,25 +1,46 @@
-$(document).ready(function() {
-    function createPlaylistCard(obj, pos) {
-        // <div id="card3" class="playlist-card">
-        //     <img class="thumbnail" src="https://i.vimeocdn.com/video/726986673_390x220.webp" />
-        //     <h3 class="video-card-title">The Heart of Soba</h3>
-        // </div>
+$(document).ready(() => {
 
-        var mainDiv = document.createElement('div');
-        mainDiv.id = 'card' + obj.id;
-        mainDiv.className = 'playlist-card';
+    function createPlaylistCard(video) {
+    const mainDiv = document.createElement("div");
+    mainDiv.id = "card" + video.id;
+    mainDiv.className = "playlist-card";
 
-        var thumbnail = document.createElement('img');
-        thumbnail.src = obj.thumbnail;
-        thumbnail.className = 'thumbnail';
+    const thumbnail = document.createElement("img");
+    thumbnail.src = video.thumbnail;
+    thumbnail.className = "thumbnail";
 
-        var title = document.createElement('h3');
-        title.className = 'video-card-title';
-        title.innerHTML = obj.title;
+    const title = document.createElement("h3");
+    title.className = "video-card-title";
+    title.textContent = video.title;
 
-        mainDiv.appendChild(thumbnail);
-        mainDiv.appendChild(title);
+    mainDiv.appendChild(thumbnail);
+    mainDiv.appendChild(title);
 
-        return mainDiv;
+    return mainDiv;
+  }
+
+  
+
+  async function loadFiles() {
+    try {
+      const response = await fetch(
+        "https://5d76bf96515d1a0014085cf9.mockapi.io/playlist"
+      );
+      const videos = await response.json();
+
+      console.log(videos);
+
+      const playlistWrapper = document.getElementById("playlist-wrapper");
+      playlistWrapper.innerHTML = "";
+
+      videos.forEach((video) => {
+        const card = createPlaylistCard(video);
+        playlistWrapper.appendChild(card);
+      });
+    } catch (error) {
+      console.error("Error loading playlist:", error);
     }
+  }
+
+  loadFiles();
 });
