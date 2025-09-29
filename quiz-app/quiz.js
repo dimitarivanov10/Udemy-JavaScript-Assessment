@@ -63,7 +63,7 @@ function createNewQuizItem(item, quizNum) {
 async function populateQuizData() {
   try {
     const response = await fetch(
-      "http://5d76bf96515d1a0014085cf9.mockapi.io/quiz"
+      "https://5d76bf96515d1a0014085cf9.mockapi.io/quiz"
     );
     const data = await response.json();
     let quizNum = 1;
@@ -89,7 +89,7 @@ quizFormEl.addEventListener("submit", async (e) => {
     userAnswers[name] = Number(value);
   }
   const response = await fetch(
-    "http://5d76bf96515d1a0014085cf9.mockapi.io/quiz"
+    "https://5d76bf96515d1a0014085cf9.mockapi.io/quiz"
   );
   const quizData = await response.json();
 
