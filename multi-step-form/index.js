@@ -1,66 +1,93 @@
-let inputEl = null;
-let errorMessage = null;
+const fieldRules = {
+  first_name: /^[A-Za-z]+(?: [A-Za-z]+)*$/,
+  last_name: /^[A-Za-z]+(?: [A-Za-z]+)*$/,
+  email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+  contact: /^[0-9]{7,15}$/,
+  city: /^[A-Za-z]+(?: [A-Za-z]+)*$/,
+  country: /^[A-Za-z]+(?: [A-Za-z]+)*$/
+};
 
-const firstFieldSetter = document.getElementById("StepOneContainer");
-const secondFieldSetter = document.getElementById("StepTwoContainer");
-const oneToTwoBtn = document.getElementById("StepOneNext");
+const requiredFields = {
+  0: ["first_name", "email"],
+  1: ["contact", "country"]
+};
 
-document.addEventListener("click", (event) => {
-  const clickedElement = event.target;
-  const elementId = clickedElement.id;
+function validateField(fieldId) {
+  const inputEl = document.getElementById(fieldId);
+  const errorMessage = document.getElementById(`${fieldId}_error`);
+  const regex = fieldRules[fieldId];
+  const value = inputEl.value.trim();
 
-  switch (elementId) {
-    case "first_name":
-      inputEl = document.getElementById(elementId);
-      errorMessage = document.getElementById(`${elementId}_error`);
-
-      inputEl.addEventListener("blur", () => {
-        const regex = /^[A-Za-z]+(?: [A-Za-z]+)*$/;
-        const value = inputEl.value.trim();
-
-        if (regex.test(value)) {
-          errorMessage.style.display = "none";
-        } else {
-          errorMessage.style.display = "block";
-        }
-      });
-      break;
-    case "last_name":
-      inputEl = document.getElementById(elementId);
-      errorMessage = document.getElementById(`${elementId}_error`);
-
-      inputEl.addEventListener("blur", () => {
-        const regex = /^[A-Za-z]+(?: [A-Za-z]+)*$/;
-        const value = inputEl.value.trim();
-
-        if (regex.test(value)) {
-          errorMessage.style.display = "none";
-        } else {
-          errorMessage.style.display = "block";
-        }
-      });
-      break;
-
-    case "email":
-      inputEl = document.getElementById(elementId);
-      errorMessage = document.getElementById(`${elementId}_error`);
-
-      inputEl.addEventListener("blur", () => {
-        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const value = inputEl.value.trim();
-
-        if (regex.test(value)) {
-          errorMessage.style.display = "none";
-        } else {
-          errorMessage.style.display = "block";
-        }
-      });
-      break;
+  if (value === "" && requiredFields[currentStep]?.includes(fieldId)) {
+    errorMessage.style.display = "block";
+    return false;
   }
+
+  if (value !== "" && !regex.test(value)) {
+    errorMessage.style.display = "block";
+    return false;
+  }
+
+  errorMessage.style.display = "none";
+  return true;
+}
+
+function validateStep(stepIndex) {
+  const fields = requiredFields[stepIndex] || [];
+  return fields.every(fieldId => validateField(fieldId));
+}
+
+Object.keys(fieldRules).forEach(fieldId => {
+  const inputEl = document.getElementById(fieldId);
+  if (!inputEl) return;
+
+  inputEl.addEventListener("blur", () => validateField(fieldId));
+  inputEl.addEventListener("input", () => validateField(fieldId));
 });
 
-oneToTwoBtn.addEventListener("click", (e)=>{
-    e.preventDefault();
-    firstFieldSetter.style.display = "none";
-    secondFieldSetter.style.display = "block";
-})
+const steps = [
+  document.getElementById("StepOneContainer"),
+  document.getElementById("StepTwoContainer"),
+  document.getElementById("StepThreeContainer")
+];
+
+const successContainer = document.getElementById("SuccessContainer");
+steps.forEach(step => step.style.display = "none");
+successContainer.style.display = "none";
+
+let currentStep = 0;
+steps[currentStep].style.display = "block";
+
+function showStep(index) {
+  steps.forEach(step => step.style.display = "none");
+  steps[index].style.display = "block";
+  currentStep = index;
+}
+
+document.getElementById("StepOneNext").addEventListener("click", (e) => {
+  e.preventDefault();
+  if (validateStep(currentStep)) showStep(1);
+});
+
+document.getElementById("StepTwoPrevious").addEventListener("click", (e) => {
+  e.preventDefault();
+  showStep(0);
+});
+
+document.getElementById("StepTwoNext").addEventListener("click", (e) => {
+  e.preventDefault();
+  if (validateStep(currentStep)) showStep(2);
+});
+
+document.getElementById("StepThreePrevious").addEventListener("click", (e) => {
+  e.preventDefault();
+  showStep(1);
+});
+
+document.getElementById("StepThreeSubmit").addEventListener("click", (e) => {
+  e.preventDefault();
+  if (validateStep(currentStep)) {
+    steps.forEach(step => step.style.display = "none");
+    successContainer.style.display = "block";
+  }
+});
